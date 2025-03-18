@@ -1,6 +1,6 @@
 using MongoDB.EntityFrameworkCore;
 
-namespace WebDev_Labb2_API
+namespace WebDev_Labb2_API.Model
 {
     [Collection("Products")]
     public class Products

@@ -1,27 +1,27 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using WebDev_Labb2_API.Model;
 
 namespace WebDev_Labb2_API.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class ProductsController : Controller
+    public class CustomersController : Controller
     {
-        [HttpGet(Name = "GetProducts")]
-        public List<Products> Get()
+        [HttpGet(Name = "GetCustomers")]
+        public List<Customers> Get()
         {
             try
             {
-                List<Products> products = new();
+                List<Customers> customers = new();
 
                 using (var db = new DBContext())
                 {
-                    var result = db.Products.FirstOrDefault();
+                    var result = db.Customers.Find();
 
-                    products.Add(result);
+                    customers.Add(result);
                 }
 
-                return products;
+                return customers;
             }
             catch (Exception e)
             {

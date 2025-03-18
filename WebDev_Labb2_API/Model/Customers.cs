@@ -1,6 +1,6 @@
 ﻿using MongoDB.EntityFrameworkCore;
 
-namespace API_example.Model
+namespace WebDev_Labb2_API.Model
 {
     [Collection("Customers")]
     public class Customers
