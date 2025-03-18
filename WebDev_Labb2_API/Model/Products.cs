@@ -1,27 +1,30 @@
+using MongoDB.Bson;
 using MongoDB.EntityFrameworkCore;
 
 namespace WebDev_Labb2_API.Model
 {
     [Collection("Products")]
+
     public class Products
     {
-        public string SKU { get; set; }
-        public double Price { get; set; }
-        public bool IsInStock { get; set; }
-        public string Name { get; set; }
-        public string Apperance { get; set; }
-        public double AtomicMass { get; set; }
-        public string Category { get; set; }
-        public double Density { get; set; }
-        public double MeltingPoint { get; set; }
-        public double BoilingPoint { get; set; }
-        public double AtomicNumber { get; set; }
-        public string Phase { get; set; }
-        public string Source { get; set; }
-        public string BohrModelImg { get; set; }
-        public string Summary { get; set; }
-        public string Symbol { get; set; }
-        public string CpkHexColor { get; set; }
-        public string Block { get; set; }
+        public ObjectId Id { get; set; }
+        public string sku { get; set; }
+        public double price { get; set; }
+        public bool in_stock { get; set; }
+        public string name { get; set; }
+        public string? appearance { get; set; }
+        public double atomic_mass { get; set; }
+        public string category { get; set; }
+        public double density { get; set; }
+        public double melt { get; set; }
+        public double boil { get; set; }
+        public double number { get; set; }
+        public string phase { get; set; }
+        public string source { get; set; }
+        public string? bohr_model_image { get; set; }
+        public string summary { get; set; }
+        public string symbol { get; set; }
+        public string? cpk_hex { get; set; }
+        public string block { get; set; }
     }
 }

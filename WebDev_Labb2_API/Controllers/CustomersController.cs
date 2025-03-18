@@ -12,18 +12,17 @@ namespace WebDev_Labb2_API.Controllers
         {
             try
             {
-                List<Customers> customers = new();
 
                 using (var db = new DBContext())
                 {
-                    var result = db.Customers.Find();
+                    List<Customers> result = new();
 
-                    customers.Add(result);
+                    result = db.Customers.ToList();
+
+                    return result;
                 }
-
-                return customers;
             }
-            catch (Exception e)
+            catch
             {
                 Console.Write("Error");
                 return null;

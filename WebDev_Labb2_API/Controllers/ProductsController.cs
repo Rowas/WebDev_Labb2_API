@@ -12,18 +12,16 @@ namespace WebDev_Labb2_API.Controllers
         {
             try
             {
-                List<Products> products = new();
-
                 using (var db = new DBContext())
                 {
-                    var result = db.Products.FirstOrDefault();
+                    List<Products> result = new();
 
-                    products.Add(result);
+                    result = db.Products.ToList();
+
+                    return result;
                 }
-
-                return products;
             }
-            catch (Exception e)
+            catch
             {
                 Console.Write("Error");
                 return null;
