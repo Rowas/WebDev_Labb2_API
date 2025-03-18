@@ -8,7 +8,7 @@ namespace WebDev_Labb2_API.Model
     public class Products
     {
         public ObjectId Id { get; set; }
-        public string sku { get; set; }
+        public int sku { get; set; }
         public double price { get; set; }
         public bool in_stock { get; set; }
         public string name { get; set; }

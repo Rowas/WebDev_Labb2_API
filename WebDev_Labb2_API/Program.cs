@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc.Formatters;
 using WebDev_Labb2_API.Model;
 
 var AllowedOrigins = "_allowedOrigins";
@@ -16,6 +17,11 @@ builder.Services.AddCors(options =>
 });
 
 // Add services to the container.
+
+builder.Services.AddControllers(opt =>
+{
+    opt.OutputFormatters.RemoveType<HttpNoContentOutputFormatter>();
+});
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

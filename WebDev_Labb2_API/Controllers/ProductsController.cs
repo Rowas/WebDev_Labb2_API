@@ -27,5 +27,37 @@ namespace WebDev_Labb2_API.Controllers
                 return null;
             }
         }
+
+        [HttpGet("{sku_or_name}", Name = "GetProductBySkuOrName")]
+        public Products Get(string sku_or_name)
+        {
+            try
+            {
+                using (var db = new DBContext())
+                {
+                    int sku;
+                    if (int.TryParse(sku_or_name.ToString(), out sku) == true)
+                    {
+                        var result = db.Products.Where(p => p.sku == sku).FirstOrDefault();
+                        return result;
+                    }
+                    else if (int.TryParse(sku_or_name.ToString(), out sku) == false)
+                    {
+                        string name = sku_or_name.ToString();
+                        var result = db.Products.Where(p => p.name == name).FirstOrDefault();
+                        return result;
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+            }
+            catch
+            {
+                Console.Write("Error");
+                return null;
+            }
+        }
     }
 }

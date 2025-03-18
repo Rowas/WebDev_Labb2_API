@@ -28,5 +28,26 @@ namespace WebDev_Labb2_API.Controllers
                 return null;
             }
         }
+
+        [HttpGet("{email}", Name = "GetCustomer")]
+        public Customers Get(string email)
+        {
+            try
+            {
+                using (var db = new DBContext())
+                {
+                    Customers result = new();
+
+                    result = db.Customers.Where(c => c.email == email).FirstOrDefault();
+
+                    return result;
+                }
+            }
+            catch
+            {
+                Console.Write("Error");
+                return null;
+            }
+        }
     }
 }
