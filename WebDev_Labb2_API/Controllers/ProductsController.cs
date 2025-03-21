@@ -16,7 +16,7 @@ namespace WebDev_Labb2_API.Controllers
                 {
                     List<Products> result = new();
 
-                    result = db.Products.ToList();
+                    result = db.Products.OrderBy(n => n.number).ToList();
 
                     return result;
                 }
@@ -152,36 +152,37 @@ namespace WebDev_Labb2_API.Controllers
         }
 
         [HttpPost(Name = "AddProduct")]
-        public string Post(int sku, double price, bool in_stock, string name, string appearance, double atomic_mass, string category, double density, double melt, double boil, double number, string phase, string source, string bohr_model_image, string summary, string symbol, string cpk_hex, string block)
+        public string Post(Products receivedProduct)
         {
+            var newProd = receivedProduct;
             try
             {
                 using (var db = new DBContext())
                 {
-                    if (db.Products.Where(p => p.sku == sku).FirstOrDefault() != null)
+                    if (db.Products.Where(p => p.sku == newProd.sku).FirstOrDefault() != null)
                     {
                         return "Product already exists.";
                     }
                     Products product = new Products
                     {
-                        sku = sku,
-                        price = price,
-                        in_stock = in_stock,
-                        name = name,
-                        appearance = appearance,
-                        atomic_mass = atomic_mass,
-                        category = category,
-                        density = density,
-                        melt = melt,
-                        boil = boil,
-                        number = number,
-                        phase = phase,
-                        source = source,
-                        bohr_model_image = bohr_model_image,
-                        summary = summary,
-                        symbol = symbol,
-                        cpk_hex = cpk_hex,
-                        block = block
+                        sku = newProd.sku,
+                        price = newProd.price,
+                        in_stock = newProd.in_stock,
+                        name = newProd.name,
+                        appearance = newProd.appearance,
+                        atomic_mass = newProd.atomic_mass,
+                        category = newProd.category,
+                        density = newProd.density,
+                        melt = newProd.melt,
+                        boil = newProd.boil,
+                        number = newProd.number,
+                        phase = newProd.phase,
+                        source = newProd.source,
+                        bohr_model_image = newProd.bohr_model_image,
+                        summary = newProd.summary,
+                        symbol = newProd.symbol,
+                        cpk_hex = newProd.cpk_hex,
+                        block = newProd.block
                     };
                     db.Products.Add(product);
                     db.SaveChanges();
