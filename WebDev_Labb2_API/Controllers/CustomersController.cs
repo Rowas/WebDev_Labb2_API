@@ -51,40 +51,41 @@ namespace WebDev_Labb2_API.Controllers
         }
 
         [HttpPost(Name = "AddCustomer")]
-        public string Post(string username, string firstname, string lastname, string email, string mobile_number, string city, string country, string postcode, string street)
+        public string Post(Customers receivedCustomer)
         {
+            Customers newCustomer = receivedCustomer;
             try
             {
                 using (var db = new DBContext())
                 {
-                    if (db.Customers.Where(c => c.email == email).FirstOrDefault() != null)
+                    if (db.Customers.Where(c => c.email == newCustomer.email).FirstOrDefault() != null)
                     {
                         return "Customer already exists.";
                     }
-                    if (db.Customers.Where(c => c.username == username).FirstOrDefault() != null)
+                    if (db.Customers.Where(c => c.username == newCustomer.username).FirstOrDefault() != null)
                     {
                         return "Username already exists.";
                     }
                     var deliveryadress = new DeliveryAddress
                     {
-                        street = street,
-                        post_code = postcode,
-                        city = city,
-                        country = country
+                        street = newCustomer.delivery_adress.street,
+                        post_code = newCustomer.delivery_adress.post_code,
+                        city = newCustomer.delivery_adress.city,
+                        country = newCustomer.delivery_adress.country
                     };
                     var customer = new Customers
                     {
-                        username = username,
+                        username = newCustomer.username,
                         userlevel = "customer",
-                        firstname = firstname,
-                        lastname = lastname,
-                        email = email,
-                        mobile_number = mobile_number,
+                        firstname = newCustomer.firstname,
+                        lastname = newCustomer.lastname,
+                        email = newCustomer.email,
+                        mobile_number = newCustomer.mobile_number,
                         delivery_adress = deliveryadress
                     };
                     db.Customers.Add(customer);
                     db.SaveChanges();
-                    return $"Customer {firstname} {lastname} added sucessfully.";
+                    return $"Customer {newCustomer.firstname} {newCustomer.lastname} added sucessfully.";
                 }
             }
             catch
