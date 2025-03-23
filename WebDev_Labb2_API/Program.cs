@@ -47,6 +47,6 @@ app.MapControllers();
 
 using (var db = new DBContext())
 {
-    db.Database.EnsureCreated();
+    // db.Database.EnsureCreated();
     app.Run();
 }

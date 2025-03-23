@@ -40,6 +40,11 @@ namespace WebDev_Labb2_API.Controllers
 
                     result = db.Customers.Where(c => c.email == email).FirstOrDefault();
 
+                    if (result == null)
+                    {
+                        return null;
+                    }
+
                     return result;
                 }
             }
@@ -96,41 +101,19 @@ namespace WebDev_Labb2_API.Controllers
         }
 
         [HttpPatch("{email}", Name = "UpdateCustomer")]
-        public string Patch(string email, string field, string value)
+        public string Patch(Customers patchedCustomer)
         {
             try
             {
                 using (var db = new DBContext())
                 {
-                    var customer = db.Customers.Where(c => c.email == email).FirstOrDefault();
+                    var customer = db.Customers.Where(c => c.email == patchedCustomer.email).FirstOrDefault();
                     if (customer != null)
                     {
-                        switch (field)
-                        {
-                            case "username":
-                                customer.username = value;
-                                break;
-                            case "userlevel":
-                                customer.userlevel = value;
-                                break;
-                            case "firstname":
-                                customer.firstname = value;
-                                break;
-                            case "lastname":
-                                customer.lastname = value;
-                                break;
-                            case "email":
-                                customer.email = value;
-                                break;
-                            case "mobile_number":
-                                customer.mobile_number = value;
-                                break;
-                            default:
-                                return "Field not found";
-                        }
+                        customer = patchedCustomer;
                         db.SaveChanges();
 
-                        return $"Customer {field} updated to {value} sucessfully.";
+                        return $"Customer {customer.email} have been updated sucessfully.";
                     }
 
                     return "Customer not found";
