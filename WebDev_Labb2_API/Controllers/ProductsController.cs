@@ -60,55 +60,6 @@ namespace WebDev_Labb2_API.Controllers
             }
         }
 
-        //[HttpPatch("{name_or_sku}", Name = "UpdateProductStockStatus")]
-        //public string Patch(string name_or_sku, bool? in_stock)
-        //{
-        //    try
-        //    {
-        //        using (var db = new DBContext())
-        //        {
-        //            if (int.TryParse(name_or_sku.ToString(), out var sku) == true)
-        //            {
-        //                var product = db.Products.Where(p => p.sku == sku).FirstOrDefault();
-
-        //                if (product == null)
-        //                {
-        //                    return $"{name_or_sku} not found.";
-        //                }
-        //                else
-        //                {
-        //                    product.in_stock = in_stock.Value;
-        //                    db.SaveChanges();
-        //                    return $"Product stock status updated: {product.name} stock status: {product.in_stock}";
-        //                }
-        //            }
-        //            else if (int.TryParse(name_or_sku.ToString(), out var name) == false)
-        //            {
-        //                var product = db.Products.Where(p => p.name == name_or_sku).FirstOrDefault();
-        //                if (product == null)
-        //                {
-        //                    return $"{name_or_sku} not found.";
-        //                }
-        //                else
-        //                {
-        //                    product.in_stock = in_stock.Value;
-        //                    db.SaveChanges();
-        //                    return $"Product stock status updated: {product.name} stock status: {product.in_stock}";
-        //                }
-        //            }
-        //            else
-        //            {
-        //                return $"{name_or_sku} not found. No changes made";
-        //            }
-        //        }
-        //    }
-        //    catch
-        //    {
-        //        Console.Write("Error");
-        //        return null;
-        //    }
-        //}
-
         [HttpPatch("{ProdToUpdate}", Name = "UpdateProduct")]
         public string Patch(string ProdToUpdate, Products productToUpdate)
         {
@@ -195,6 +146,30 @@ namespace WebDev_Labb2_API.Controllers
                     db.Products.Add(receivedProduct);
                     db.SaveChanges();
                     return "Product added.";
+                }
+            }
+            catch
+            {
+                Console.Write("Error");
+                return null;
+            }
+        }
+
+        [HttpDelete("{sku}", Name = "DeleteProduct")]
+        public string Delete(int sku)
+        {
+            try
+            {
+                using (var db = new DBContext())
+                {
+                    var product = db.Products.Where(p => p.sku == sku).FirstOrDefault();
+                    if (product != null)
+                    {
+                        db.Products.Remove(product);
+                        db.SaveChanges();
+                        return $"Product {product.name} removed.";
+                    }
+                    return "Product not found.";
                 }
             }
             catch

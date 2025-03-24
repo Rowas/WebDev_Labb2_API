@@ -125,5 +125,29 @@ namespace WebDev_Labb2_API.Controllers
                 return null;
             }
         }
+
+        [HttpDelete("{email}", Name = "DeleteCustomer")]
+        public string Delete(string email)
+        {
+            try
+            {
+                using (var db = new DBContext())
+                {
+                    var customer = db.Customers.Where(c => c.email == email).FirstOrDefault();
+                    if (customer != null)
+                    {
+                        db.Customers.Remove(customer);
+                        db.SaveChanges();
+                        return $"Customer {customer.email} have been deleted sucessfully.";
+                    }
+                    return "Customer not found";
+                }
+            }
+            catch
+            {
+                Console.Write("Error");
+                return null;
+            }
+        }
     }
 }
