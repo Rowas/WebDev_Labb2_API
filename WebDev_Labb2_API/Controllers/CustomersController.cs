@@ -101,7 +101,7 @@ namespace WebDev_Labb2_API.Controllers
         }
 
         [HttpPatch("{email}", Name = "UpdateCustomer")]
-        public string Patch(Customers patchedCustomer)
+        public string Patch(string email, Customers patchedCustomer)
         {
             try
             {

@@ -110,7 +110,7 @@ namespace WebDev_Labb2_API.Controllers
         //}
 
         [HttpPatch("{ProdToUpdate}", Name = "UpdateProduct")]
-        public string Patch(string ProdToUpdate, Products product)
+        public string Patch(string ProdToUpdate, Products productToUpdate)
         {
             try
             {
@@ -119,31 +119,30 @@ namespace WebDev_Labb2_API.Controllers
                     int sku;
                     if (int.TryParse(ProdToUpdate.ToString(), out sku) == true)
                     {
-                        var productToUpdate = db.Products.Where(p => p.sku == sku).FirstOrDefault();
-                        if (productToUpdate == null)
+                        Products product = db.Products.Where(p => p.sku == sku).FirstOrDefault();
+                        if (product == null)
                         {
-                            return $"{ProdToUpdate} not found.";
+                            return $"{productToUpdate} not found.";
                         }
                         else
                         {
-                            db.Products.Update(product);
-                            productToUpdate = AssignProductValues(product);
+                            product = AssignProductValues(product, productToUpdate);
                             db.SaveChanges();
-                            return $"Product updated: {productToUpdate.name}";
+                            return $"Product updated: {product.name}";
                         }
                     }
                     else if (int.TryParse(ProdToUpdate.ToString(), out var name) == false)
                     {
-                        var productToUpdate = db.Products.Where(p => p.name == ProdToUpdate).FirstOrDefault();
-                        if (productToUpdate == null)
+                        Products product = db.Products.Where(p => p.name == productToUpdate.name).FirstOrDefault();
+                        if (product == null)
                         {
-                            return $"{ProdToUpdate} not found.";
+                            return $"{productToUpdate} not found.";
                         }
                         else
                         {
-                            productToUpdate = AssignProductValues(product);
+                            product = AssignProductValues(product, productToUpdate);
                             db.SaveChanges();
-                            return $"Product updated: {productToUpdate.name}";
+                            return $"Product updated: {product.name}";
                         }
                     }
                     else
@@ -159,27 +158,26 @@ namespace WebDev_Labb2_API.Controllers
             }
         }
 
-        private Products AssignProductValues(Products product)
+        private Products AssignProductValues(Products oldProduct, Products newProduct)
         {
-            Products productToUpdate = new();
-            productToUpdate.price = product.price;
-            productToUpdate.in_stock = product.in_stock;
-            productToUpdate.name = product.name;
-            productToUpdate.appearance = product.appearance;
-            productToUpdate.atomic_mass = product.atomic_mass;
-            productToUpdate.category = product.category;
-            productToUpdate.density = product.density;
-            productToUpdate.melt = product.melt;
-            productToUpdate.boil = product.boil;
-            productToUpdate.number = product.number;
-            productToUpdate.phase = product.phase;
-            productToUpdate.source = product.source;
-            productToUpdate.bohr_model_image = product.bohr_model_image;
-            productToUpdate.summary = product.summary;
-            productToUpdate.symbol = product.symbol;
-            productToUpdate.cpk_hex = product.cpk_hex;
-            productToUpdate.block = product.block;
-            return productToUpdate;
+            oldProduct.price = newProduct.price;
+            oldProduct.in_stock = newProduct.in_stock;
+            oldProduct.name = newProduct.name;
+            oldProduct.appearance = newProduct.appearance;
+            oldProduct.atomic_mass = newProduct.atomic_mass;
+            oldProduct.category = newProduct.category;
+            oldProduct.density = newProduct.density;
+            oldProduct.melt = newProduct.melt;
+            oldProduct.boil = newProduct.boil;
+            oldProduct.number = newProduct.number;
+            oldProduct.phase = newProduct.phase;
+            oldProduct.source = newProduct.source;
+            oldProduct.bohr_model_image = newProduct.bohr_model_image;
+            oldProduct.summary = newProduct.summary;
+            oldProduct.symbol = newProduct.symbol;
+            oldProduct.cpk_hex = newProduct.cpk_hex;
+            oldProduct.block = newProduct.block;
+            return oldProduct;
         }
 
         [HttpPost(Name = "AddProduct")]
