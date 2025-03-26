@@ -6,7 +6,7 @@ namespace WebDev_Labb2_API.Model
     {
         public DbSet<Products> Products { get; set; }
         public DbSet<Customers> Customers { get; set; }
-        //public DbSet<Orders> Orders { get; set; }
+        public DbSet<Orders> Orders { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
