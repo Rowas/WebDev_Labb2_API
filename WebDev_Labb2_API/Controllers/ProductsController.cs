@@ -60,57 +60,8 @@ namespace WebDev_Labb2_API.Controllers
             }
         }
 
-        //[HttpPatch("{name_or_sku}", Name = "UpdateProductStockStatus")]
-        //public string Patch(string name_or_sku, bool? in_stock)
-        //{
-        //    try
-        //    {
-        //        using (var db = new DBContext())
-        //        {
-        //            if (int.TryParse(name_or_sku.ToString(), out var sku) == true)
-        //            {
-        //                var product = db.Products.Where(p => p.sku == sku).FirstOrDefault();
-
-        //                if (product == null)
-        //                {
-        //                    return $"{name_or_sku} not found.";
-        //                }
-        //                else
-        //                {
-        //                    product.in_stock = in_stock.Value;
-        //                    db.SaveChanges();
-        //                    return $"Product stock status updated: {product.name} stock status: {product.in_stock}";
-        //                }
-        //            }
-        //            else if (int.TryParse(name_or_sku.ToString(), out var name) == false)
-        //            {
-        //                var product = db.Products.Where(p => p.name == name_or_sku).FirstOrDefault();
-        //                if (product == null)
-        //                {
-        //                    return $"{name_or_sku} not found.";
-        //                }
-        //                else
-        //                {
-        //                    product.in_stock = in_stock.Value;
-        //                    db.SaveChanges();
-        //                    return $"Product stock status updated: {product.name} stock status: {product.in_stock}";
-        //                }
-        //            }
-        //            else
-        //            {
-        //                return $"{name_or_sku} not found. No changes made";
-        //            }
-        //        }
-        //    }
-        //    catch
-        //    {
-        //        Console.Write("Error");
-        //        return null;
-        //    }
-        //}
-
         [HttpPatch("{ProdToUpdate}", Name = "UpdateProduct")]
-        public string Patch(string ProdToUpdate, Products product)
+        public string Patch(string ProdToUpdate, Products productToUpdate)
         {
             try
             {
@@ -119,31 +70,30 @@ namespace WebDev_Labb2_API.Controllers
                     int sku;
                     if (int.TryParse(ProdToUpdate.ToString(), out sku) == true)
                     {
-                        var productToUpdate = db.Products.Where(p => p.sku == sku).FirstOrDefault();
-                        if (productToUpdate == null)
+                        Products product = db.Products.Where(p => p.sku == sku).FirstOrDefault();
+                        if (product == null)
                         {
-                            return $"{ProdToUpdate} not found.";
+                            return $"{productToUpdate} not found.";
                         }
                         else
                         {
-                            db.Products.Update(product);
-                            productToUpdate = AssignProductValues(product);
+                            product = AssignProductValues(product, productToUpdate);
                             db.SaveChanges();
-                            return $"Product updated: {productToUpdate.name}";
+                            return $"Product updated: {product.name}";
                         }
                     }
                     else if (int.TryParse(ProdToUpdate.ToString(), out var name) == false)
                     {
-                        var productToUpdate = db.Products.Where(p => p.name == ProdToUpdate).FirstOrDefault();
-                        if (productToUpdate == null)
+                        Products product = db.Products.Where(p => p.name == productToUpdate.name).FirstOrDefault();
+                        if (product == null)
                         {
-                            return $"{ProdToUpdate} not found.";
+                            return $"{productToUpdate} not found.";
                         }
                         else
                         {
-                            productToUpdate = AssignProductValues(product);
+                            product = AssignProductValues(product, productToUpdate);
                             db.SaveChanges();
-                            return $"Product updated: {productToUpdate.name}";
+                            return $"Product updated: {product.name}";
                         }
                     }
                     else
@@ -159,27 +109,26 @@ namespace WebDev_Labb2_API.Controllers
             }
         }
 
-        private Products AssignProductValues(Products product)
+        private Products AssignProductValues(Products oldProduct, Products newProduct)
         {
-            Products productToUpdate = new();
-            productToUpdate.price = product.price;
-            productToUpdate.in_stock = product.in_stock;
-            productToUpdate.name = product.name;
-            productToUpdate.appearance = product.appearance;
-            productToUpdate.atomic_mass = product.atomic_mass;
-            productToUpdate.category = product.category;
-            productToUpdate.density = product.density;
-            productToUpdate.melt = product.melt;
-            productToUpdate.boil = product.boil;
-            productToUpdate.number = product.number;
-            productToUpdate.phase = product.phase;
-            productToUpdate.source = product.source;
-            productToUpdate.bohr_model_image = product.bohr_model_image;
-            productToUpdate.summary = product.summary;
-            productToUpdate.symbol = product.symbol;
-            productToUpdate.cpk_hex = product.cpk_hex;
-            productToUpdate.block = product.block;
-            return productToUpdate;
+            oldProduct.price = newProduct.price;
+            oldProduct.in_stock = newProduct.in_stock;
+            oldProduct.name = newProduct.name;
+            oldProduct.appearance = newProduct.appearance;
+            oldProduct.atomic_mass = newProduct.atomic_mass;
+            oldProduct.category = newProduct.category;
+            oldProduct.density = newProduct.density;
+            oldProduct.melt = newProduct.melt;
+            oldProduct.boil = newProduct.boil;
+            oldProduct.number = newProduct.number;
+            oldProduct.phase = newProduct.phase;
+            oldProduct.source = newProduct.source;
+            oldProduct.bohr_model_image = newProduct.bohr_model_image;
+            oldProduct.summary = newProduct.summary;
+            oldProduct.symbol = newProduct.symbol;
+            oldProduct.cpk_hex = newProduct.cpk_hex;
+            oldProduct.block = newProduct.block;
+            return oldProduct;
         }
 
         [HttpPost(Name = "AddProduct")]
@@ -197,6 +146,30 @@ namespace WebDev_Labb2_API.Controllers
                     db.Products.Add(receivedProduct);
                     db.SaveChanges();
                     return "Product added.";
+                }
+            }
+            catch
+            {
+                Console.Write("Error");
+                return null;
+            }
+        }
+
+        [HttpDelete("{sku}", Name = "DeleteProduct")]
+        public string Delete(int sku)
+        {
+            try
+            {
+                using (var db = new DBContext())
+                {
+                    var product = db.Products.Where(p => p.sku == sku).FirstOrDefault();
+                    if (product != null)
+                    {
+                        db.Products.Remove(product);
+                        db.SaveChanges();
+                        return $"Product {product.name} removed.";
+                    }
+                    return "Product not found.";
                 }
             }
             catch
