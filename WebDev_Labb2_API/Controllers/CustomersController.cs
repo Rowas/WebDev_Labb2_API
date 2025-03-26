@@ -59,6 +59,7 @@ namespace WebDev_Labb2_API.Controllers
         public IActionResult Post(Customers receivedCustomer)
         {
             Customers newCustomer = receivedCustomer;
+            CustomerMethods CustomerMethods = new CustomerMethods();
             try
             {
                 using (var db = new DBContext())
@@ -71,23 +72,9 @@ namespace WebDev_Labb2_API.Controllers
                     {
                         return BadRequest(new { message = "Username already exists." });
                     }
-                    var deliveryadress = new DeliveryAddress
-                    {
-                        street = newCustomer.delivery_adress.street,
-                        post_code = newCustomer.delivery_adress.post_code,
-                        city = newCustomer.delivery_adress.city,
-                        country = newCustomer.delivery_adress.country
-                    };
-                    var customer = new Customers
-                    {
-                        username = newCustomer.username,
-                        userlevel = "customer",
-                        firstname = newCustomer.firstname,
-                        lastname = newCustomer.lastname,
-                        email = newCustomer.email,
-                        mobile_number = newCustomer.mobile_number,
-                        delivery_adress = deliveryadress
-                    };
+
+                    var customer = CustomerMethods.CreateCustomer(newCustomer);
+
                     db.Customers.Add(customer);
                     db.SaveChanges();
                     return Ok(new { message = "Success", customer });
