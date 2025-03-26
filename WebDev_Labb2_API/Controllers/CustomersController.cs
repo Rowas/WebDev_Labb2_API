@@ -56,7 +56,7 @@ namespace WebDev_Labb2_API.Controllers
         }
 
         [HttpPost(Name = "AddCustomer")]
-        public string Post(Customers receivedCustomer)
+        public IActionResult Post(Customers receivedCustomer)
         {
             Customers newCustomer = receivedCustomer;
             try
@@ -65,11 +65,11 @@ namespace WebDev_Labb2_API.Controllers
                 {
                     if (db.Customers.Where(c => c.email == newCustomer.email).FirstOrDefault() != null)
                     {
-                        return "Customer already exists.";
+                        return BadRequest(new { message = "Customer already exists." });
                     }
                     if (db.Customers.Where(c => c.username == newCustomer.username).FirstOrDefault() != null)
                     {
-                        return "Username already exists.";
+                        return BadRequest(new { message = "Username already exists." });
                     }
                     var deliveryadress = new DeliveryAddress
                     {
@@ -90,7 +90,7 @@ namespace WebDev_Labb2_API.Controllers
                     };
                     db.Customers.Add(customer);
                     db.SaveChanges();
-                    return $"Customer {newCustomer.firstname} {newCustomer.lastname} added sucessfully.";
+                    return Ok(new { message = "Success", customer });
                 }
             }
             catch
@@ -101,22 +101,22 @@ namespace WebDev_Labb2_API.Controllers
         }
 
         [HttpPatch("{email}", Name = "UpdateCustomer")]
-        public string Patch(string email, Customers patchedCustomer)
+        public IActionResult Patch(string email, Customers patchedCustomer)
         {
             try
             {
                 using (var db = new DBContext())
                 {
                     var customer = db.Customers.Where(c => c.email == patchedCustomer.email).FirstOrDefault();
-                    if (customer != null)
+                    if (customer == null)
                     {
-                        customer = patchedCustomer;
-                        db.SaveChanges();
-
-                        return $"Customer {customer.email} have been updated sucessfully.";
+                        return BadRequest(new { message = "Customer not found" });
                     }
+                    customer = patchedCustomer;
+                    db.SaveChanges();
 
-                    return "Customer not found";
+                    return Ok(new { message = "Success", customer });
+
                 }
             }
             catch
@@ -127,20 +127,20 @@ namespace WebDev_Labb2_API.Controllers
         }
 
         [HttpDelete("{email}", Name = "DeleteCustomer")]
-        public string Delete(string email)
+        public IActionResult Delete(string email)
         {
             try
             {
                 using (var db = new DBContext())
                 {
                     var customer = db.Customers.Where(c => c.email == email).FirstOrDefault();
-                    if (customer != null)
+                    if (customer == null)
                     {
-                        db.Customers.Remove(customer);
-                        db.SaveChanges();
-                        return $"Customer {customer.email} have been deleted sucessfully.";
+                        return BadRequest(new { messsage = "Customer not found" });
                     }
-                    return "Customer not found";
+                    db.Customers.Remove(customer);
+                    db.SaveChanges();
+                    return Ok(new { message = "Success", customer });
                 }
             }
             catch

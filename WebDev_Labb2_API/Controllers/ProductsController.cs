@@ -61,7 +61,7 @@ namespace WebDev_Labb2_API.Controllers
         }
 
         [HttpPatch("{ProdToUpdate}", Name = "UpdateProduct")]
-        public string Patch(string ProdToUpdate, Products productToUpdate)
+        public IActionResult Patch(string ProdToUpdate, Products productToUpdate)
         {
             try
             {
@@ -73,13 +73,13 @@ namespace WebDev_Labb2_API.Controllers
                         Products product = db.Products.Where(p => p.sku == sku).FirstOrDefault();
                         if (product == null)
                         {
-                            return $"{productToUpdate} not found.";
+                            return BadRequest(new { message = $"Product not found." });
                         }
                         else
                         {
                             product = AssignProductValues(product, productToUpdate);
                             db.SaveChanges();
-                            return $"Product updated: {product.name}";
+                            return Ok(new { message = "Success", product });
                         }
                     }
                     else if (int.TryParse(ProdToUpdate.ToString(), out var name) == false)
@@ -87,18 +87,18 @@ namespace WebDev_Labb2_API.Controllers
                         Products product = db.Products.Where(p => p.name == productToUpdate.name).FirstOrDefault();
                         if (product == null)
                         {
-                            return $"{productToUpdate} not found.";
+                            return BadRequest(new { message = $"Product not found." });
                         }
                         else
                         {
                             product = AssignProductValues(product, productToUpdate);
                             db.SaveChanges();
-                            return $"Product updated: {product.name}";
+                            return Ok(new { message = "Success", product });
                         }
                     }
                     else
                     {
-                        return "Product not found. No changes made.";
+                        return BadRequest(new { message = $"Product not found." });
                     }
                 }
             }
@@ -132,7 +132,7 @@ namespace WebDev_Labb2_API.Controllers
         }
 
         [HttpPost(Name = "AddProduct")]
-        public string Post(Products receivedProduct)
+        public IActionResult Post(Products receivedProduct)
         {
             var newProd = receivedProduct;
             try
@@ -141,11 +141,11 @@ namespace WebDev_Labb2_API.Controllers
                 {
                     if (db.Products.Where(p => p.sku == newProd.sku).FirstOrDefault() != null)
                     {
-                        return "Product already exists.";
+                        return BadRequest(new { message = "Product already exists." });
                     }
                     db.Products.Add(receivedProduct);
                     db.SaveChanges();
-                    return "Product added.";
+                    return Ok(new { message = "Success", receivedProduct });
                 }
             }
             catch
@@ -156,7 +156,7 @@ namespace WebDev_Labb2_API.Controllers
         }
 
         [HttpDelete("{sku}", Name = "DeleteProduct")]
-        public string Delete(int sku)
+        public IActionResult Delete(int sku)
         {
             try
             {
@@ -165,11 +165,11 @@ namespace WebDev_Labb2_API.Controllers
                     var product = db.Products.Where(p => p.sku == sku).FirstOrDefault();
                     if (product != null)
                     {
-                        db.Products.Remove(product);
-                        db.SaveChanges();
-                        return $"Product {product.name} removed.";
+                        return BadRequest(new { message = "Product not found." });
                     }
-                    return "Product not found.";
+                    db.Products.Remove(product);
+                    db.SaveChanges();
+                    return Ok(new { message = "Success", product });
                 }
             }
             catch
