@@ -1,10 +1,12 @@
-﻿using MongoDB.EntityFrameworkCore;
+﻿using MongoDB.Bson;
+using MongoDB.EntityFrameworkCore;
 
 namespace WebDev_Labb2_API.Model
 {
     [Collection("Orders")]
     public class Orders
     {
+        public ObjectId Id { get; set; }
         public string username { get; set; }
         public string order_id { get; set; }
         public DateOnly order_date { get; set; }
