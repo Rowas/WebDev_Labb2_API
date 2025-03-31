@@ -9,7 +9,7 @@
                 street = newCustomer.delivery_adress.street,
                 post_code = newCustomer.delivery_adress.post_code,
                 city = newCustomer.delivery_adress.city,
-                country = newCustomer.delivery_adress.country
+                country = "Sweden"
             };
             var customer = new Customers
             {
