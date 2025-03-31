@@ -7,6 +7,8 @@ namespace WebDev_Labb2_API.Controllers
     [Route("[controller]")]
     public class CustomersController : Controller
     {
+        private CustomerMethods CustomerMethods = new CustomerMethods();
+
         [HttpGet(Name = "GetCustomers")]
         public List<Customers> Get()
         {
@@ -59,7 +61,6 @@ namespace WebDev_Labb2_API.Controllers
         public IActionResult Post(Customers receivedCustomer)
         {
             Customers newCustomer = receivedCustomer;
-            CustomerMethods CustomerMethods = new CustomerMethods();
             try
             {
                 using (var db = new DBContext())
@@ -70,7 +71,7 @@ namespace WebDev_Labb2_API.Controllers
                     }
                     if (db.Customers.Where(c => c.username == newCustomer.username).FirstOrDefault() != null)
                     {
-                        return BadRequest(new { message = "Username already exists." });
+                        newCustomer.username = newCustomer.username + "1";
                     }
 
                     var customer = CustomerMethods.CreateCustomer(newCustomer);
@@ -78,6 +79,36 @@ namespace WebDev_Labb2_API.Controllers
                     db.Customers.Add(customer);
                     db.SaveChanges();
                     return Ok(new { message = "Success", customer });
+                }
+            }
+            catch
+            {
+                Console.Write("Error");
+                return null;
+            }
+        }
+        [HttpPost("login", Name = "LoginCustomer")]
+        public IActionResult Post(Login credentials)
+        {
+            try
+            {
+                using (var db = new DBContext())
+                {
+                    var customer = db.Customers.Where(c => c.email == credentials.email).FirstOrDefault();
+                    if (customer == null)
+                    {
+                        return BadRequest(new { message = "Customer not found or Password Wrong" });
+                    }
+                    var testResult = CustomerMethods.VerifyLogin(customer, credentials.password);
+
+                    if (testResult.ToString() == "Success")
+                    {
+                        return Ok(new { message = "Success" });
+                    }
+                    else
+                    {
+                        return BadRequest(new { message = "Customer not found or Password Wrong" });
+                    }
                 }
             }
             catch
