@@ -13,12 +13,13 @@
             };
             var customer = new Customers
             {
-                username = newCustomer.username,
-                userlevel = "customer",
                 firstname = newCustomer.firstname,
                 lastname = newCustomer.lastname,
                 email = newCustomer.email,
                 mobile_number = newCustomer.mobile_number,
+                userlevel = "customer",
+                username = newCustomer.username,
+                password = newCustomer.password,
                 delivery_adress = deliveryadress
             };
 
