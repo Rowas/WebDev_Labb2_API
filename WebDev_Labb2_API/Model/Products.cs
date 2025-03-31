@@ -21,7 +21,7 @@ namespace WebDev_Labb2_API.Model
         public double? melt { get; set; }
         public double? molar_heat { get; set; }
         public string? named_by { get; set; }
-        public double number { get; set; }
+        public int number { get; set; }
         public int? period { get; set; }
         public int? group { get; set; }
         public string phase { get; set; }

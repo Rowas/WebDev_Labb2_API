@@ -4,6 +4,7 @@ using WebDev_Labb2_API.Model;
 var AllowedOrigins = "_allowedOrigins";
 
 var builder = WebApplication.CreateBuilder(args);
+var connectionString = builder.Configuration.GetConnectionString("MongoDb");
 
 builder.Services.AddCors(options =>
 {

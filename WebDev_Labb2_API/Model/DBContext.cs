@@ -10,7 +10,8 @@ namespace WebDev_Labb2_API.Model
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            var connectionString = "mongodb://localhost:27017?serverSelectionTimeoutMS=10000";
+            var connectionString = new ConfigurationBuilder().AddUserSecrets<Program>().Build().GetConnectionString("MongoDb");
+
             var collection = "WebDev_Labb2_DB";
 
             Database.AutoTransactionBehavior = AutoTransactionBehavior.Never;
