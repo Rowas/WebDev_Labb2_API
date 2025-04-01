@@ -1,5 +1,7 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc.Formatters;
-using WebDev_Labb2_API.Model;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var AllowedOrigins = "_allowedOrigins";
 
@@ -19,6 +21,24 @@ builder.Services.AddCors(options =>
 });
 
 // Add services to the container.
+
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = "localhost",
+            ValidAudience = "localhost",
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("NoKeyForYou"))
+        };
+    });
+
+builder.Services.AddAuthorization();
 
 builder.Services.AddControllers(opt =>
 {
@@ -43,12 +63,10 @@ app.UseCors(AllowedOrigins);
 
 app.UseHttpsRedirection();
 
-app.UseAuthorization();
-
 app.MapControllers();
 
-using (var db = new DBContext())
-{
-    // db.Database.EnsureCreated();
-    app.Run();
-}
+app.UseAuthorization();
+
+app.UseAuthentication();
+
+app.Run();
