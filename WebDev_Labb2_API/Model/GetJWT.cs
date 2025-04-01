@@ -7,13 +7,29 @@ namespace WebDev_Labb2_API.Model
 {
     public class GetJWT
     {
-        public string GenerateJwtToken(string username)
+        public string GenerateJwtToken(string username, string userrole)
         {
-            var claims = new[]
+            Claim[] claims;
+
+            if (userrole == "Admin")
             {
-            new Claim(JwtRegisteredClaimNames.Sub, username),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-        };
+                claims = new[]
+                {
+                    new Claim(JwtRegisteredClaimNames.Sub, username),
+                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                    new Claim(ClaimTypes.Role, "Admin")
+                };
+            }
+            else
+            {
+                claims = new[]
+                {
+                    new Claim(JwtRegisteredClaimNames.Sub, username),
+                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                    new Claim(ClaimTypes.Role, "User")
+                };
+            }
+
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("I am the administrator, this key is my password, Identify me."));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

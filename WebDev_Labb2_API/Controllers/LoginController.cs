@@ -26,7 +26,7 @@ namespace WebDev_Labb2_API.Controllers
 
                     if (testResult.ToString() == "Success")
                     {
-                        var token = GetJWT.GenerateJwtToken(customer.username);
+                        var token = GetJWT.GenerateJwtToken(customer.username, customer.userlevel);
                         return Ok(new { message = "Success", token });
                     }
                     else

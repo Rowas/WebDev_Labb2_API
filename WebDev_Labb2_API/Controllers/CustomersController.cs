@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebDev_Labb2_API.Model;
 
@@ -10,6 +11,7 @@ namespace WebDev_Labb2_API.Controllers
         private CustomerMethods CustomerMethods = new CustomerMethods();
 
         [HttpGet(Name = "GetCustomers")]
+        [Authorize(Roles = "Admin")]
         public List<Customers> Get()
         {
             try
@@ -87,36 +89,6 @@ namespace WebDev_Labb2_API.Controllers
                 return null;
             }
         }
-        //[HttpPost("login", Name = "LoginCustomer")]
-        //public IActionResult Post(Login credentials)
-        //{
-        //    try
-        //    {
-        //        using (var db = new DBContext())
-        //        {
-        //            var customer = db.Customers.Where(c => c.email == credentials.email).FirstOrDefault();
-        //            if (customer == null)
-        //            {
-        //                return BadRequest(new { message = "Customer not found or Password Wrong" });
-        //            }
-        //            var testResult = CustomerMethods.VerifyLogin(customer, credentials.password);
-
-        //            if (testResult.ToString() == "Success")
-        //            {
-        //                return Ok(new { message = "Success" });
-        //            }
-        //            else
-        //            {
-        //                return BadRequest(new { message = "Customer not found or Password Wrong" });
-        //            }
-        //        }
-        //    }
-        //    catch
-        //    {
-        //        Console.Write("Error");
-        //        return null;
-        //    }
-        //}
 
         [HttpPatch("{email}", Name = "UpdateCustomer")]
         public IActionResult Patch(string email, Customers patchedCustomer)
