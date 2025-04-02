@@ -34,11 +34,14 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateIssuerSigningKey = true,
             ValidIssuer = "localhost",
             ValidAudience = "localhost",
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("NoKeyForYou"))
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("I am the administrator, this key is my password, Identify me."))
         };
     });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("RequireAdminRole", policy => policy.RequireRole("Admin"));
+});
 
 builder.Services.AddControllers(opt =>
 {
@@ -63,10 +66,9 @@ app.UseCors(AllowedOrigins);
 
 app.UseHttpsRedirection();
 
-app.MapControllers();
-
+app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseAuthentication();
+app.MapControllers();
 
 app.Run();

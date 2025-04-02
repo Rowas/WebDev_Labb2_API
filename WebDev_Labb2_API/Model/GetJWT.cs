@@ -9,25 +9,25 @@ namespace WebDev_Labb2_API.Model
     {
         public string GenerateJwtToken(string username, string userrole)
         {
-            Claim[] claims;
+            var claims = new List<Claim>
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, username),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim(ClaimTypes.Role, userrole),
+                new Claim("username", username),
+                new Claim("role", userrole)
+            };
 
+            // Lägg till ytterligare claims baserat på rollen
             if (userrole == "Admin")
             {
-                claims = new[]
-                {
-                    new Claim(JwtRegisteredClaimNames.Sub, username),
-                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                    new Claim(ClaimTypes.Role, "Admin")
-                };
+                claims.Add(new Claim("isAdmin", "true"));
+                claims.Add(new Claim("permissions", "full_access"));
             }
             else
             {
-                claims = new[]
-                {
-                    new Claim(JwtRegisteredClaimNames.Sub, username),
-                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                    new Claim(ClaimTypes.Role, "User")
-                };
+                claims.Add(new Claim("isAdmin", "false"));
+                claims.Add(new Claim("permissions", "limited_access"));
             }
 
 
