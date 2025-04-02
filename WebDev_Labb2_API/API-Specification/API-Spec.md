@@ -2,23 +2,79 @@
 
 ## Innehåll
 1. [Allmän information](#allmän-information)
-2. [Orders API](#orders-api)
-3. [Products API](#products-api)
-4. [Customers API](#customers-api)
-5. [Datamodeller](#datamodeller)
-6. [Statuskoder och felhantering](#statuskoder-och-felhantering)
+2. [Login API](#login-api)
+3. [Orders API](#orders-api)
+4. [Products API](#products-api)
+5. [Customers API](#customers-api)
+6. [Datamodeller](#datamodeller)
+7. [Statuskoder och felhantering](#statuskoder-och-felhantering)
 
 ## Allmän information
-Alla API-anrop använder JSON för både förfrågnings- och svarsdata. Basvägen för API:et är inte angiven i endpoint-adresserna nedan.
+Alla API-anrop använder JSON för både förfrågnings- och svarsdata. API:et använder MongoDB som databas och är byggt med ASP.NET Core. Basvägen för API:et är inte angiven i endpoint-adresserna nedan.
+
+## Login API
+
+### Logga in
+- **Endpoint:** `POST /Login`
+- **Beskrivning:** Autentiserar en användare och returnerar en JWT-token
+- **Förfrågningskropp:**
+  ```json
+  {
+    "username": "string",
+    "password": "string"
+  }
+  ```
+- **Statuskoder:**
+  - `200 OK`: Inloggning lyckades
+  - `400 Bad Request`: Felaktiga uppgifter
+    - Felmeddelande: `{"message": "Invalid username or password"}`
+  - `500 Internal Server Error`: Serverfel (returnerar null)
+- **Svarsformat (lyckat):**
+  ```json
+  {
+    "message": "Success",
+    "token": "JWT-token",
+    "user": {
+      "username": "string",
+      "userlevel": "string",
+      "firstname": "string",
+      "lastname": "string",
+      "email": "string"
+    }
+  }
+  ```
+
+### Validera token
+- **Endpoint:** `GET /Login/validate`
+- **Beskrivning:** Kontrollerar om en JWT-token är giltig
+- **Headers:**
+  - `Authorization`: Bearer {token}
+- **Statuskoder:**
+  - `200 OK`: Token är giltig
+  - `401 Unauthorized`: Token är ogiltig eller saknas
+  - `500 Internal Server Error`: Serverfel (returnerar null)
+- **Svarsformat (lyckat):**
+  ```json
+  {
+    "message": "Success",
+    "user": {
+      "username": "string",
+      "userlevel": "string",
+      "firstname": "string",
+      "lastname": "string",
+      "email": "string"
+    }
+  }
+  ```
 
 ## Orders API
 
 ### Hämta alla beställningar
 - **Endpoint:** `GET /Orders`
-- **Beskrivning:** Hämtar en lista med alla beställningar i systemet
+- **Beskrivning:** Hämtar en lista med alla beställningar i systemet, sorterade efter beställningsdatum
 - **Statuskoder:**
   - `200 OK`: Listan returneras (även om den är tom)
-  - `500 Internal Server Error`: Serverfel
+  - `500 Internal Server Error`: Serverfel (returnerar null)
 - **Svarsformat:**
   ```json
   [
@@ -46,8 +102,8 @@ Alla API-anrop använder JSON för både förfrågnings- och svarsdata. Basväge
   - `order_id` (sträng, obligatorisk): Unikt ordernummer 
 - **Statuskoder:**
   - `200 OK`: Beställning hittad
-  - `404 Not Found`: Beställning ej hittad
-  - `500 Internal Server Error`: Serverfel
+  - `404 Not Found`: Beställning ej hittad (returnerar null)
+  - `500 Internal Server Error`: Serverfel (returnerar null)
 
 ### Skapa ny beställning
 - **Endpoint:** `POST /Orders`
@@ -55,7 +111,7 @@ Alla API-anrop använder JSON för både förfrågnings- och svarsdata. Basväge
 - **Förfrågningskropp:** Orders-objekt (se datamodeller)
 - **Statuskoder:**
   - `200 OK`: Beställning skapad
-  - `500 Internal Server Error`: Serverfel
+  - `500 Internal Server Error`: Serverfel (returnerar null)
 - **Svarsformat:**
   ```json
   {
@@ -84,7 +140,7 @@ Alla API-anrop använder JSON för både förfrågnings- och svarsdata. Basväge
 - **Beskrivning:** Hämtar en lista med alla produkter sorterade efter produktnummer
 - **Statuskoder:**
   - `200 OK`: Listan returneras (även om den är tom)
-  - `500 Internal Server Error`: Serverfel
+  - `500 Internal Server Error`: Serverfel (returnerar null)
 
 ### Hämta specifik produkt
 - **Endpoint:** `GET /Products/{sku_or_name}`
@@ -93,8 +149,8 @@ Alla API-anrop använder JSON för både förfrågnings- och svarsdata. Basväge
   - `sku_or_name` (sträng, obligatorisk): Produkt-SKU (numeriskt) eller produktnamn
 - **Statuskoder:**
   - `200 OK`: Produkt hittad
-  - `404 Not Found`: Produkt ej hittad 
-  - `500 Internal Server Error`: Serverfel
+  - `404 Not Found`: Produkt ej hittad (returnerar null)
+  - `500 Internal Server Error`: Serverfel (returnerar null)
 
 ### Uppdatera produkt
 - **Endpoint:** `PATCH /Products/{ProdToUpdate}`
@@ -106,7 +162,7 @@ Alla API-anrop använder JSON för både förfrågnings- och svarsdata. Basväge
   - `200 OK`: Produkt uppdaterad
   - `400 Bad Request`: Produkten hittades inte
     - Felmeddelande: `{"message": "Product not found."}`
-  - `500 Internal Server Error`: Serverfel
+  - `500 Internal Server Error`: Serverfel (returnerar null)
 - **Svarsformat (lyckat):**
   ```json
   {
@@ -130,7 +186,7 @@ Alla API-anrop använder JSON för både förfrågnings- och svarsdata. Basväge
   - `200 OK`: Produkt skapad
   - `400 Bad Request`: Produkten finns redan
     - Felmeddelande: `{"message": "Product already exists."}`
-  - `500 Internal Server Error`: Serverfel
+  - `500 Internal Server Error`: Serverfel (returnerar null)
 - **Svarsformat (lyckat):**
   ```json
   {
@@ -153,7 +209,7 @@ Alla API-anrop använder JSON för både förfrågnings- och svarsdata. Basväge
   - `200 OK`: Produkt borttagen
   - `400 Bad Request`: Produkten hittades inte
     - Felmeddelande: `{"message": "Product not found."}`
-  - `500 Internal Server Error`: Serverfel
+  - `500 Internal Server Error`: Serverfel (returnerar null)
 - **Svarsformat (lyckat):**
   ```json
   {
@@ -173,7 +229,7 @@ Alla API-anrop använder JSON för både förfrågnings- och svarsdata. Basväge
 - **Beskrivning:** Hämtar en lista med alla kunder
 - **Statuskoder:**
   - `200 OK`: Listan returneras (även om den är tom)
-  - `500 Internal Server Error`: Serverfel
+  - `500 Internal Server Error`: Serverfel (returnerar null)
 
 ### Hämta specifik kund
 - **Endpoint:** `GET /Customers/{email}`
@@ -182,8 +238,8 @@ Alla API-anrop använder JSON för både förfrågnings- och svarsdata. Basväge
   - `email` (sträng, obligatorisk): Kundens e-postadress
 - **Statuskoder:**
   - `200 OK`: Kund hittad
-  - `404 Not Found`: Kund ej hittad
-  - `500 Internal Server Error`: Serverfel
+  - `404 Not Found`: Kund ej hittad (returnerar null)
+  - `500 Internal Server Error`: Serverfel (returnerar null)
 
 ### Lägg till kund
 - **Endpoint:** `POST /Customers`
@@ -194,7 +250,7 @@ Alla API-anrop använder JSON för både förfrågnings- och svarsdata. Basväge
   - `400 Bad Request`: Kunden finns redan eller användarnamnet är upptaget
     - Felmeddelande: `{"message": "Customer already exists."}` eller
     - Felmeddelande: `{"message": "Username already exists."}`
-  - `500 Internal Server Error`: Serverfel
+  - `500 Internal Server Error`: Serverfel (returnerar null)
 - **Svarsformat (lyckat):**
   ```json
   {
@@ -227,7 +283,7 @@ Alla API-anrop använder JSON för både förfrågnings- och svarsdata. Basväge
   - `200 OK`: Kund uppdaterad
   - `400 Bad Request`: Kunden hittades inte
     - Felmeddelande: `{"message": "Customer not found"}`
-  - `500 Internal Server Error`: Serverfel
+  - `500 Internal Server Error`: Serverfel (returnerar null)
 - **Svarsformat (lyckat):**
   ```json
   {
@@ -249,7 +305,7 @@ Alla API-anrop använder JSON för både förfrågnings- och svarsdata. Basväge
   - `200 OK`: Kund borttagen
   - `400 Bad Request`: Kunden hittades inte
     - Felmeddelande: `{"message": "Customer not found"}`
-  - `500 Internal Server Error`: Serverfel
+  - `500 Internal Server Error`: Serverfel (returnerar null)
 - **Svarsformat (lyckat):**
   ```json
   {
@@ -364,4 +420,9 @@ Alla API-anrop använder JSON för både förfrågnings- och svarsdata. Basväge
 {
   "message": "Felbeskrivning"
 }
-``` 
+```
+
+### Felhantering
+- Vid serverfel (500) returneras `null` istället för ett felmeddelande
+- Vid 404 Not Found returneras `null` istället för ett felmeddelande
+- Vid 400 Bad Request returneras ett felmeddelande i standardformat 
