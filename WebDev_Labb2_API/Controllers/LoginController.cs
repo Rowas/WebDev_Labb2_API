@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using WebDev_Labb2_API.Model;
+using WebDev_Labb2_API.Repository;
 
 namespace WebDev_Labb2_API.Controllers
 {
@@ -7,40 +9,38 @@ namespace WebDev_Labb2_API.Controllers
     [Route("[controller]")]
     public class LoginController : Controller
     {
-        private CustomerMethods CustomerMethods = new CustomerMethods();
-        private GetJWT GetJWT = new GetJWT();
+        private readonly ILoginRepository _loginRepository;
+
+        public LoginController(ILoginRepository loginRepository)
+        {
+            _loginRepository = loginRepository;
+        }
 
         [HttpPost(Name = "LoginCustomer")]
-        public IActionResult Post(Login credentials)
+        public async Task<IActionResult> Post(Login credentials)
         {
             try
             {
-                using (var db = new DBContext())
-                {
-                    var customer = db.Customers.Where(c => c.email == credentials.email).FirstOrDefault();
-                    if (customer == null)
-                    {
-                        return BadRequest(new { message = "Customer not found or Password Wrong" });
-                    }
-                    var testResult = CustomerMethods.VerifyLogin(customer, credentials.password);
+                var (customer, verificationResult) = await _loginRepository.ValidateLoginAsync(credentials);
 
-                    if (testResult.ToString() == "Success")
-                    {
-                        var token = GetJWT.GenerateJwtToken(customer.username, customer.userlevel);
-                        return Ok(new { message = "Success", token });
-                    }
-                    else
-                    {
-                        return Forbid();
-                    }
+                if (customer == null)
+                {
+                    return BadRequest(new { message = "Kunden hittades inte eller lösenordet var felaktigt" });
                 }
+
+                if (verificationResult != PasswordVerificationResult.Success)
+                {
+                    return BadRequest(new { message = "Kunden hittades inte eller lösenordet var felaktigt" });
+                }
+
+                var token = await _loginRepository.GenerateTokenAsync(customer);
+
+                return Ok(new { message = "Success", token });
             }
-            catch
+            catch (Exception ex)
             {
-                Console.Write("Error");
-                return null;
+                return StatusCode(500, "Ett internt fel har inträffat");
             }
         }
-
     }
 }

@@ -8,15 +8,20 @@ namespace WebDev_Labb2_API.Model
         public DbSet<Customers> Customers { get; set; }
         public DbSet<Orders> Orders { get; set; }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        public DBContext(DbContextOptions<DBContext> options) : base(options)
         {
-            var connectionString = new ConfigurationBuilder().AddUserSecrets<Program>().Build().GetConnectionString("MongoDb");
-
-            var collection = "WebDev_Labb2_DB";
-
             Database.AutoTransactionBehavior = AutoTransactionBehavior.Never;
-
-            optionsBuilder.UseMongoDB(connectionString, collection);
         }
+
+        //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        //{
+        //    var connectionString = new ConfigurationBuilder().AddUserSecrets<Program>().Build().GetConnectionString("MongoDb");
+
+        //    var collection = "WebDev_Labb2_DB";
+
+        //    Database.AutoTransactionBehavior = AutoTransactionBehavior.Never;
+
+        //    optionsBuilder.UseMongoDB(connectionString, collection);
+        //}
     }
 }

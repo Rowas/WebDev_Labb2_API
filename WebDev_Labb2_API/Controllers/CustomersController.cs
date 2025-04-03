@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebDev_Labb2_API.Model;
+using WebDev_Labb2_API.Repository;
 
 namespace WebDev_Labb2_API.Controllers
 {
@@ -8,135 +9,119 @@ namespace WebDev_Labb2_API.Controllers
     [Route("[controller]")]
     public class CustomersController : Controller
     {
-        private CustomerMethods CustomerMethods = new CustomerMethods();
+        private readonly ICustomersRepository _customersRepository;
+
+        public CustomersController(ICustomersRepository customersRepository)
+        {
+            _customersRepository = customersRepository;
+        }
 
         [HttpGet(Name = "GetCustomers")]
         [Authorize(Roles = "Admin")]
-        public List<Customers> Get()
+        public async Task<ActionResult<IEnumerable<Customers>>> Get()
         {
             try
             {
-
-                using (var db = new DBContext())
-                {
-                    List<Customers> result = new();
-
-                    result = db.Customers.ToList();
-
-                    return result;
-                }
+                var customers = await _customersRepository.GetAllAsync();
+                return Ok(customers);
             }
             catch
             {
-                Console.Write("Error");
-                return null;
+                return StatusCode(500, "Ett internt fel har inträffat");
             }
         }
 
         [HttpGet("{email}", Name = "GetCustomer")]
-        public Customers Get(string email)
+        [Authorize]
+        public async Task<ActionResult<Customers>> Get(string email)
         {
             try
             {
-                using (var db = new DBContext())
+                var customer = await _customersRepository.GetByEmailAsync(email);
+                if (customer == null)
                 {
-                    Customers result = new();
-
-                    result = db.Customers.Where(c => c.email == email).FirstOrDefault();
-
-                    if (result == null)
-                    {
-                        return null;
-                    }
-
-                    return result;
+                    return NotFound();
                 }
+                return Ok(customer);
             }
             catch
             {
-                Console.Write("Error");
-                return null;
+                return StatusCode(500, "Ett internt fel har inträffat");
             }
         }
 
         [HttpPost(Name = "AddCustomer")]
-        public IActionResult Post(Customers receivedCustomer)
+        public async Task<ActionResult<Customers>> Post(Customers receivedCustomer)
         {
-            Customers newCustomer = receivedCustomer;
             try
             {
-                using (var db = new DBContext())
+                if (await _customersRepository.ExistsByEmailAsync(receivedCustomer.email))
                 {
-                    if (db.Customers.Where(c => c.email == newCustomer.email).FirstOrDefault() != null)
-                    {
-                        return BadRequest(new { message = "Customer already exists." });
-                    }
-                    if (db.Customers.Where(c => c.username == newCustomer.username).FirstOrDefault() != null)
-                    {
-                        newCustomer.username = newCustomer.username + "1";
-                    }
-
-                    var customer = CustomerMethods.CreateCustomer(newCustomer);
-
-                    db.Customers.Add(customer);
-                    db.SaveChanges();
-                    return Ok(new { message = "Success", customer });
+                    return BadRequest(new { message = "Customer already exists." });
                 }
+
+                if (await _customersRepository.ExistsByUsernameAsync(receivedCustomer.username))
+                {
+                    receivedCustomer.username = receivedCustomer.username + "1";
+                }
+
+                var addedCustomer = await _customersRepository.AddAsync(receivedCustomer);
+
+                addedCustomer.password = null;
+
+                return CreatedAtAction(nameof(Get),
+                    new { email = addedCustomer.email },
+                    new { message = "Success", customer = addedCustomer });
             }
-            catch
+            catch (Exception ex)
             {
-                Console.Write("Error");
-                return null;
+                return StatusCode(500, "Ett internt fel har inträffat");
             }
         }
 
         [HttpPatch("{email}", Name = "UpdateCustomer")]
-        public IActionResult Patch(string email, Customers patchedCustomer)
+        [Authorize]
+        public async Task<IActionResult> Patch(string email, Customers customerUpdate)
         {
             try
             {
-                using (var db = new DBContext())
+                var existingCustomer = await _customersRepository.GetByEmailAsync(email);
+                if (existingCustomer == null)
                 {
-                    var customer = db.Customers.Where(c => c.email == patchedCustomer.email).FirstOrDefault();
-                    if (customer == null)
-                    {
-                        return BadRequest(new { message = "Customer not found" });
-                    }
-                    customer = patchedCustomer;
-                    db.SaveChanges();
-
-                    return Ok(new { message = "Success", customer });
-
+                    return BadRequest(new { message = "Customer not found" });
                 }
+
+                existingCustomer.firstname = customerUpdate.firstname ?? existingCustomer.firstname;
+                existingCustomer.lastname = customerUpdate.lastname ?? existingCustomer.lastname;
+                existingCustomer.mobile_number = customerUpdate.mobile_number ?? existingCustomer.mobile_number;
+                existingCustomer.delivery_adress = customerUpdate.delivery_adress ?? existingCustomer.delivery_adress;
+
+                await _customersRepository.UpdateAsync(existingCustomer);
+                return Ok(new { message = "Success", customer = existingCustomer });
             }
-            catch
+            catch (Exception ex)
             {
-                Console.Write("Error");
-                return null;
+                return StatusCode(500, "Ett internt fel har inträffat");
             }
         }
 
         [HttpDelete("{email}", Name = "DeleteCustomer")]
-        public IActionResult Delete(string email)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Delete(string email)
         {
             try
             {
-                using (var db = new DBContext())
+                var customer = await _customersRepository.GetByEmailAsync(email);
+                if (customer == null)
                 {
-                    var customer = db.Customers.Where(c => c.email == email).FirstOrDefault();
-                    if (customer == null)
-                    {
-                        return BadRequest(new { messsage = "Customer not found" });
-                    }
-                    db.Customers.Remove(customer);
-                    db.SaveChanges();
-                    return Ok(new { message = "Success", customer });
+                    return BadRequest(new { message = "Customer not found" });
                 }
+                await _customersRepository.DeleteAsync(customer);
+                return Ok(new { message = "Success", customer });
             }
-            catch
+            catch (Exception ex)
             {
-                Console.Write("Error");
-                return null;
+                return StatusCode(500, "Ett internt fel har inträffat");
             }
         }
     }

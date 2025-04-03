@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using WebDev_Labb2_API.Model;
+using WebDev_Labb2_API.Repository;
 
 namespace WebDev_Labb2_API.Controllers
 {
@@ -7,154 +8,128 @@ namespace WebDev_Labb2_API.Controllers
     [Route("[controller]")]
     public class ProductsController : Controller
     {
+        private readonly IProductsRepository _productRepository;
+
+        public ProductsController(IProductsRepository productsRepository)
+        {
+            _productRepository = productsRepository;
+        }
+
         [HttpGet(Name = "GetProducts")]
-        public List<Products> Get()
+        public async Task<ActionResult<IEnumerable<Products>>> Get()
         {
             try
             {
-                using (var db = new DBContext())
-                {
-                    List<Products> result = new();
-
-                    result = db.Products.OrderBy(n => n.number).ToList();
-
-                    return result;
-                }
+                var products = await _productRepository.GetAllAsync();
+                return Ok(products);
             }
-            catch
+            catch (Exception ex)
             {
-                Console.Write("Error");
-                return null;
+                return StatusCode(500, "Ett internt fel har inträffat");
             }
         }
 
         [HttpGet("{sku_or_name}", Name = "GetProductBySkuOrName")]
-        public Products Get(string sku_or_name)
+        public async Task<ActionResult<Products>> Get(string sku_or_name)
         {
             try
             {
-                using (var db = new DBContext())
+                Products product;
+                if (int.TryParse(sku_or_name, out int sku))
                 {
-                    int sku;
-                    if (int.TryParse(sku_or_name.ToString(), out sku) == true)
-                    {
-                        var result = db.Products.Where(p => p.sku == sku).FirstOrDefault();
-                        return result;
-                    }
-                    else if (int.TryParse(sku_or_name.ToString(), out sku) == false)
-                    {
-                        string name = sku_or_name.ToString();
-                        var result = db.Products.Where(p => p.name == name).FirstOrDefault();
-                        return result;
-                    }
-                    else
-                    {
-                        return null;
-                    }
+                    product = await _productRepository.GetBySkuAsync(sku);
                 }
+                else
+                {
+                    product = await _productRepository.GetByNameAsync(sku_or_name);
+                }
+
+                if (product == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(product);
             }
-            catch
+            catch (Exception ex)
             {
-                Console.Write("Error");
-                return null;
+                return StatusCode(500, "Ett internt fel har inträffat");
             }
         }
 
-        [HttpPatch("{ProdToUpdate}", Name = "UpdateProduct")]
-        public IActionResult Patch(string ProdToUpdate, Products productToUpdate)
+        [HttpGet("category/{category}", Name = "GetProductsByCategory")]
+        public async Task<ActionResult<IEnumerable<Products>>> GetProductsByCategory(string category)
         {
             try
             {
-                var ProdMethods = new ProdMethods();
-                using (var db = new DBContext())
+                var products = await _productRepository.GetProductsByCategory(category);
+                if (products == null || !products.Any())
                 {
-                    int sku;
-                    if (int.TryParse(ProdToUpdate.ToString(), out sku) == true)
-                    {
-                        Products product = db.Products.Where(p => p.sku == sku).FirstOrDefault();
-                        if (product == null)
-                        {
-                            return BadRequest(new { message = $"Product not found." });
-                        }
-                        else
-                        {
-                            product = ProdMethods.AssignProductValues(product, productToUpdate);
-                            db.SaveChanges();
-                            return Ok(new { message = "Success", product });
-                        }
-                    }
-                    else if (int.TryParse(ProdToUpdate.ToString(), out var name) == false)
-                    {
-                        Products product = db.Products.Where(p => p.name == productToUpdate.name).FirstOrDefault();
-                        if (product == null)
-                        {
-                            return BadRequest(new { message = $"Product not found." });
-                        }
-                        else
-                        {
-                            product = ProdMethods.AssignProductValues(product, productToUpdate);
-                            db.SaveChanges();
-                            return Ok(new { message = "Success", product });
-                        }
-                    }
-                    else
-                    {
-                        return BadRequest(new { message = $"Product not found." });
-                    }
+                    return NotFound();
                 }
+                return Ok(products);
             }
-            catch
+            catch (Exception ex)
             {
-                Console.WriteLine("Error");
-                return null;
+                return StatusCode(500, "Ett internt fel har inträffat");
             }
         }
 
         [HttpPost(Name = "AddProduct")]
-        public IActionResult Post(Products receivedProduct)
+        public async Task<ActionResult<Products>> Post(Products product)
         {
-            var newProd = receivedProduct;
             try
             {
-                using (var db = new DBContext())
+                var existingProduct = await _productRepository.GetBySkuAsync(product.sku);
+                if (existingProduct != null)
                 {
-                    if (db.Products.Where(p => p.sku == newProd.sku).FirstOrDefault() != null)
-                    {
-                        return BadRequest(new { message = "Product already exists." });
-                    }
-                    db.Products.Add(receivedProduct);
-                    db.SaveChanges();
-                    return Ok(new { message = "Success", receivedProduct });
+                    return BadRequest(new { message = "Product already exists." });
                 }
+
+                var addedProduct = await _productRepository.AddAsync(product);
+                return CreatedAtAction(nameof(Get), new { sku_or_name = addedProduct.sku }, addedProduct);
             }
-            catch
+            catch (Exception ex)
             {
-                Console.Write("Error");
-                return null;
+                return StatusCode(500, "Ett internt fel har inträffat");
             }
         }
 
-        [HttpDelete("{sku}", Name = "DeleteProduct")]
-        public IActionResult Delete(int sku)
+        [HttpDelete(Name = "DeleteProduct")]
+        public async Task<IActionResult> Delete(int sku)
         {
             try
             {
-                using (var db = new DBContext())
+                var product = await _productRepository.GetBySkuAsync(sku);
+                if (product == null)
                 {
-                    var product = db.Products.Where(p => p.sku == sku).FirstOrDefault();
-                    if (product != null)
-                    {
-                        return BadRequest(new { message = "Product not found." });
-                    }
-                    db.Products.Remove(product);
-                    db.SaveChanges();
-                    return Ok(new { message = "Success", product });
+                    return NotFound();
                 }
+                await _productRepository.DeleteAsync(product);
+                return NoContent();
             }
-            catch
+            catch (Exception ex)
             {
-                Console.Write("Error");
-                return null;
+                return StatusCode(500, "Ett internt fel har inträffat");
+            }
+        }
+
+        [HttpPut(Name = "UpdateProduct")]
+        public async Task<IActionResult> Put(Products product)
+        {
+            try
+            {
+                var updatedProduct = await _productRepository.UpdateProductAsync(product);
+                if (updatedProduct == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(new { message = "Success", product = updatedProduct });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Ett internt fel har inträffat");
             }
         }
     }

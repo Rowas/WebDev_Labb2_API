@@ -1,7 +1,10 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc.Formatters;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using WebDev_Labb2_API.Model;
+using WebDev_Labb2_API.Repository;
 
 var AllowedOrigins = "_allowedOrigins";
 
@@ -22,6 +25,12 @@ builder.Services.AddCors(options =>
 
 // Add services to the container.
 
+builder.Services.AddDbContext<DBContext>(options =>
+{
+    var connectionString = new ConfigurationBuilder().AddUserSecrets<Program>().Build().GetConnectionString("MongoDb");
+    var collection = "WebDev_Labb2_DB";
+    options.UseMongoDB(connectionString, collection);
+});
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -41,6 +50,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("RequireAdminRole", policy => policy.RequireRole("Admin"));
+    options.AddPolicy("RequireCustomerRole", policy => policy.RequireRole("Customer"));
 });
 
 builder.Services.AddControllers(opt =>
@@ -52,6 +62,10 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddScoped<IProductsRepository, ProductsRepository>();
+builder.Services.AddScoped<ICustomersRepository, CustomersRepository>();
+builder.Services.AddScoped<ILoginRepository, LoginRepository>();
 
 var app = builder.Build();
 
