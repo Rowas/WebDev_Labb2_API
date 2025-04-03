@@ -114,7 +114,7 @@ namespace WebDev_Labb2_API.Controllers
             }
         }
 
-        [HttpPut(Name = "UpdateProduct")]
+        [HttpPut("single", Name = "UpdateProduct")]
         public async Task<IActionResult> Put(Products product)
         {
             try
@@ -126,6 +126,23 @@ namespace WebDev_Labb2_API.Controllers
                 }
 
                 return Ok(new { message = "Success", product = updatedProduct });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Ett internt fel har inträffat");
+            }
+        }
+
+        [HttpPut("bulk", Name = "MassUpdateProducts")]
+        public async Task<IActionResult> Put(IEnumerable<Products> products)
+        {
+            try
+            {
+                foreach (var product in products)
+                {
+                    var updatedProduct = await _productRepository.UpdateProductAsync(product);
+                }
+                return Ok(new { message = "Success" });
             }
             catch (Exception ex)
             {

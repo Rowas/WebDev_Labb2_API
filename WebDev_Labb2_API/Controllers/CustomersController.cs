@@ -78,6 +78,28 @@ namespace WebDev_Labb2_API.Controllers
                 return StatusCode(500, "Ett internt fel har inträffat");
             }
         }
+        [HttpPut("bulk", Name = "MassUpdateCustomers")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Put(IEnumerable<Customers> customers)
+        {
+            try
+            {
+                foreach (var customer in customers)
+                {
+                    var existingCustomer = await _customersRepository.GetByEmailAsync(customer.email);
+                    existingCustomer.firstname = customer.firstname;
+                    existingCustomer.lastname = customer.lastname;
+                    existingCustomer.mobile_number = customer.mobile_number;
+                    existingCustomer.delivery_adress = customer.delivery_adress;
+                    await _customersRepository.UpdateAsync(existingCustomer);
+                }
+                return Ok(new { message = "Success" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Ett internt fel har inträffat");
+            }
+        }
 
         [HttpPatch("{email}", Name = "UpdateCustomer")]
         [Authorize]

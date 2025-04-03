@@ -12,16 +12,5 @@ namespace WebDev_Labb2_API.Model
         {
             Database.AutoTransactionBehavior = AutoTransactionBehavior.Never;
         }
-
-        //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        //{
-        //    var connectionString = new ConfigurationBuilder().AddUserSecrets<Program>().Build().GetConnectionString("MongoDb");
-
-        //    var collection = "WebDev_Labb2_DB";
-
-        //    Database.AutoTransactionBehavior = AutoTransactionBehavior.Never;
-
-        //    optionsBuilder.UseMongoDB(connectionString, collection);
-        //}
     }
 }
