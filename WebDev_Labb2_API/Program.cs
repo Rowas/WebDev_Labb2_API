@@ -66,6 +66,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IProductsRepository, ProductsRepository>();
 builder.Services.AddScoped<ICustomersRepository, CustomersRepository>();
 builder.Services.AddScoped<ILoginRepository, LoginRepository>();
+builder.Services.AddScoped<IOrdersRepository, OrdersRepository>();
 
 var app = builder.Build();
 

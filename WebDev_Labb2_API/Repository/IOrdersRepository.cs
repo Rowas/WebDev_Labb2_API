@@ -6,6 +6,8 @@ namespace WebDev_Labb2_API.Repository
     {
         Task<IEnumerable<Orders>> GetOrdersByUserAsync(string username);
         Task<Orders> GetByOrderIdAsync(string orderId);
-        Task<IEnumerable<Orders>> GetOrdersByDateRangeAsync(DateOnly startDate, DateOnly endDate);
+        Task<IEnumerable<Orders>> GetAllOrdersByStatusAsync(string status);
+        Task<Orders> CreateOrderAsync(Orders order);
+        Task<Orders> UpdateOrderStatusAsync(string orderId, string newStatus);
     }
 }
