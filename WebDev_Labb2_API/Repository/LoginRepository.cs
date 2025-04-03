@@ -35,5 +35,10 @@ namespace WebDev_Labb2_API.Repository
         {
             return _getJWT.GenerateJwtToken(customer.username, customer.userlevel);
         }
+
+        public async Task<Customers?> GetCustomerByUsernameAsync(string username)
+        {
+            return await _context.Customers.FirstOrDefaultAsync(c => c.username == username);
+        }
     }
-} 
+}

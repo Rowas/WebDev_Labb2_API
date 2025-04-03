@@ -7,5 +7,6 @@ namespace WebDev_Labb2_API.Repository
     {
         Task<(Customers customer, PasswordVerificationResult result)> ValidateLoginAsync(Login credentials);
         Task<string> GenerateTokenAsync(Customers customer);
+        Task<Customers?> GetCustomerByUsernameAsync(string username);
     }
-} 
+}
