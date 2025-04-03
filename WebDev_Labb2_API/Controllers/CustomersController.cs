@@ -27,7 +27,7 @@ namespace WebDev_Labb2_API.Controllers
             }
             catch
             {
-                return StatusCode(500, "Ett internt fel har intr‰ffat");
+                return StatusCode(500, "Ett internt fel har intr√§ffat");
             }
         }
 
@@ -46,7 +46,7 @@ namespace WebDev_Labb2_API.Controllers
             }
             catch
             {
-                return StatusCode(500, "Ett internt fel har intr‰ffat");
+                return StatusCode(500, "Ett internt fel har intr√§ffat");
             }
         }
 
@@ -75,7 +75,7 @@ namespace WebDev_Labb2_API.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, "Ett internt fel har intr‰ffat");
+                return StatusCode(500, "Ett internt fel har intr√§ffat");
             }
         }
 
@@ -101,7 +101,7 @@ namespace WebDev_Labb2_API.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, "Ett internt fel har intr‰ffat");
+                return StatusCode(500, "Ett internt fel har intr√§ffat");
             }
         }
 
@@ -121,7 +121,39 @@ namespace WebDev_Labb2_API.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, "Ett internt fel har intr‰ffat");
+                return StatusCode(500, "Ett internt fel har intr√§ffat");
+            }
+        }
+
+        [HttpGet("username/{username}", Name = "GetCustomerByUsername")]
+        [Authorize]
+        public async Task<ActionResult<Customers>> GetByUsername(string username)
+        {
+            try
+            {
+                var currentUser = User.Identity?.Name;
+
+                var isAdmin = User.IsInRole("Admin");
+
+                if (currentUser != username && !isAdmin)
+                {
+                    return Forbid();
+                }
+
+                var customer = await _customersRepository.GetByUsernameAsync(username);
+
+                if (customer == null)
+                {
+                    return NotFound(new { message = "Anv√§ndaren hittades inte" });
+                }
+
+                customer.password = null;
+
+                return Ok(customer);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Ett internt fel har intr√§ffat" });
             }
         }
     }
