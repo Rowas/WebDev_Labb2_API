@@ -9,8 +9,8 @@ namespace WebDev_Labb2_API.Model
         public ObjectId Id { get; set; }
         public string username { get; set; }
         public string order_id { get; set; }
-        public DateOnly order_date { get; set; }
-        public DateOnly delivery_date { get; set; }
+        public DateTime order_date { get; set; }
+        public DateTime delivery_date { get; set; }
         public string status { get; set; }
         public List<ItemList> item_list { get; set; }
     }
