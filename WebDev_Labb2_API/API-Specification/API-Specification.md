@@ -318,7 +318,7 @@ API:et är för närvarande i sin första version och använder inte explicit ve
   "in_stock": "bool",
   "name": "string",
   "appearance": "string eller null",
-  "atomic_mass": "double",
+  "atomic_mass": "double eller null",
   "boil": "double eller null",
   "category": "string",
   "density": "double eller null",
@@ -326,16 +326,16 @@ API:et är för närvarande i sin första version och använder inte explicit ve
   "melt": "double eller null",
   "molar_heat": "double eller null",
   "named_by": "string eller null",
-  "number": "double",
+  "number": "double eller null",
   "period": "int eller null",
   "group": "int eller null",
-  "phase": "string",
+  "phase": "string eller null",
   "source": "string eller null",
   "bohr_model_image": "string eller null",
   "bohr_model_3d": "string eller null",
   "spectral_img": "string eller null",
   "summary": "string",
-  "symbol": "string",
+  "symbol": "string eller null",
   "xpos": "int eller null",
   "ypos": "int eller null",
   "wxpos": "int eller null",
@@ -346,8 +346,8 @@ API:et är för närvarande i sin första version och använder inte explicit ve
   "electron_affinity": "double eller null",
   "electronegativity_pauling": "double eller null",
   "ionization_energies": "array av double eller null",
-  "cpk_hex": "string",
-  "block": "string"
+  "cpk_hex": "string eller null",
+  "block": "string eller null"
 }
 ```
 
